@@ -16,10 +16,6 @@ def printList (list,heading):
     if len(list)>0:
         print(tabulate([i.strip("[]").split(", ") for i in list], headers=[heading], tablefmt='orgtbl')+"\n")
 
-
-
-
-
 #This function is used to perform one hot encoding on the categorical features in the given dataset
 def featureEncodingUsingOneHotEncoder(dataSetForFeatureEncoding):
     print("****** Start one hot encoding on the categorical features in the given dataset *****")
