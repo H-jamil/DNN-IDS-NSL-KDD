@@ -53,22 +53,29 @@ from classificationlibrary import findingOptimumNumberOfNeighboursForKNN
 
 
 
-# def recall_m(y_true, y_pred):
-#     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-#     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
-#     recall = true_positives / (possible_positives + K.epsilon())
-#     return recall
-#
-# def precision_m(y_true, y_pred):
-#     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-#     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-#     precision = true_positives / (predicted_positives + K.epsilon())
-#     return precision
-#
-# def f1_m(y_true, y_pred):
-#     precision = precision_m(y_true, y_pred)
-#     recall = recall_m(y_true, y_pred)
-#     return 2*((precision*recall)/(precision+recall+K.epsilon()))
+def recall_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    recall = true_positives / (possible_positives + K.epsilon())
+    return recall
+
+def precision_m(y_true, y_pred):
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def f1_m(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+def shuffle_in_unison(a,b):
+
+    assert len(a)==len(b)
+    c = np.arange(len(a))
+    np.random.shuffle(c)
+    return a[c],b[c]
 
 
 def getPathToTrainingAndTestingDataSets():
@@ -294,7 +301,7 @@ def autoEncoder(X_train,X_test):
     # plot the autoencoder
     #plot_model(model, 'autoencoder_no_compress.png', show_shapes=True)
     # fit the autoencoder model to reconstruct input
-    history = model.fit(X_train, X_train, epochs=200, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+    history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
     #plot loss
 
     pyplot.plot(history.history['loss'], label='train')
@@ -316,8 +323,8 @@ def nn_model(trainx, trainy, valx,valy,bt_size,epochs, layers):
     model.add(Dense(l, activation='relu' ))
     model.add(Dropout(0.30))
   model.add(Dense(1, activation='sigmoid'))
-  #model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy',f1_m,precision_m,recall_m])
-  model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+  model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy',f1_m,precision_m,recall_m])
+  #model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
   hist=model.fit(trainx, trainy, batch_size=bt_size, epochs=epochs, shuffle=True, validation_data=(valx,valy), verbose=True)
   model.save('dnn.h5')
@@ -376,7 +383,16 @@ y_testMalicious=np.ones(X_testMalicious.shape[0])
 y_test_final=np.append(y_testNormal,y_testMalicious)
 print(X_test_final.shape, y_test_final.shape)
 
-# autoEncoder(X_train_final,X_test_final)
+X_train_final,y_train_final=shuffle_in_unison(X_train_final,y_train_final)
+X_test_final,y_test_final=shuffle_in_unison(X_test_final,y_test_final)
+
+# print(X_train_final[:10])
+# print(y_train_final[:10])
+# print(X_test_final[:10])
+# print(y_test_final[:10])
+
+
+autoEncoder(X_train_final,X_test_final)
 
 # load the model from file
 encoder = load_model('encoder.h5')
@@ -385,11 +401,12 @@ X_train_final_encode = encoder.predict(X_train_final)
 # encode the test data
 X_test_final_encode = encoder.predict(X_test_final)
 
-layers=[1000,800,500,400,300,200,100,50,10]
-hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,20,layers)
+layers=[1000,500,300,100,50,10]
+hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,10,layers)
 print('MAX Accuracy during training: ',max(hist.history['accuracy'])*100)
 print('MAX Accuracy during validation: ',max(hist.history['val_accuracy'])*100)
-plt.plot(range(20), hist.history['accuracy'], 'r', label='Train acc')
-plt.plot(range(20), hist.history['val_accuracy'], 'b', label='Test acc')
+plt.plot(range(10), hist.history['accuracy'], 'r', label='Train acc')
+plt.plot(range(10), hist.history['val_accuracy'], 'b', label='Test acc')
 plt.show()
+
 #Following code is for encoder
