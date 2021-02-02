@@ -335,14 +335,14 @@ def nn_model(trainx, trainy, valx,valy,bt_size,epochs, layers):
 trainingFileNameWithAbsolutePath, testingFileNameWithAbsolutePath = getPathToTrainingAndTestingDataSets()
 
 trainingDataSet = loadCSV(trainingFileNameWithAbsolutePath)
-difficultyLevel = trainingDataSet.pop('difficulty_level')
+#difficultyLevel = trainingDataSet.pop('difficulty_level')
 labelName = getLabelName()
 label = trainingDataSet[labelName]
 getStatisticsOfData(trainingDataSet)
 
 #Define file names and call loadCSV to load the CSV files
 testingDataSet = loadCSV(testingFileNameWithAbsolutePath)
-difficultyLevel = testingDataSet.pop('difficulty_level')
+#difficultyLevel = testingDataSet.pop('difficulty_level')
 getStatisticsOfData(testingDataSet)
 arrayOfModels = defineArrayForPreProcessing()
 completeEncodedAndScaledDataset = performPreprocessing(trainingDataSet, testingDataSet, arrayOfModels)
