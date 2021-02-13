@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import time
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from keras import backend as K
@@ -50,9 +50,6 @@ from classificationlibrary import classifyUsingRandomForestClassifier
 from classificationlibrary import classifyUsingExtraTreesClassifier
 from classificationlibrary import classifyUsingKNNClassifier
 from classificationlibrary import findingOptimumNumberOfNeighboursForKNN
-
-
-
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
@@ -301,7 +298,9 @@ def autoEncoder(X_train,X_test):
     # plot the autoencoder
     #plot_model(model, 'autoencoder_no_compress.png', show_shapes=True)
     # fit the autoencoder model to reconstruct input
-    history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+    # history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+    history = model.fit(X_train, X_train, epochs=5, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+
     #plot loss
 
     # pyplot.plot(history.history['loss'], label='train')
@@ -317,6 +316,7 @@ def autoEncoder(X_train,X_test):
 
 
 def nn_model(trainx, trainy, valx,valy,bt_size,epochs, layers):
+  # batch_time_callback = BatchTimeCallback()
   model = Sequential()
   model.add(Dense(layers[0],activation='relu', input_shape=(trainx.shape[1],)))
   for l in layers[1:]:
@@ -329,6 +329,9 @@ def nn_model(trainx, trainy, valx,valy,bt_size,epochs, layers):
   hist=model.fit(trainx, trainy, batch_size=bt_size, epochs=epochs, shuffle=True, validation_data=(valx,valy), verbose=True)
   model.save('dnn.h5')
   loss, accuracy, f1_score, precision, recall = model.evaluate(valx, valy, verbose=0)
+  start = time.process_time_ns()
+  res = model.predict(valx)
+  print("model evaluation time in clock",(time.process_time_ns() - start)/valx.shape[0],"ns for ",valx.shape[0], "test data in average")
   print("loss", loss,  "accuracy", accuracy*100, "f1_score", f1_score, "precision", precision, "recall", recall)
   return hist
 
@@ -399,12 +402,20 @@ encoder = load_model('encoder.h5')
 # encode the train data
 X_train_final_encode = encoder.predict(X_train_final)
 # encode the test data
+
+start = time.process_time_ns()
 X_test_final_encode = encoder.predict(X_test_final)
+print("autoencoder evaluation time in clock",(time.process_time_ns() - start)/X_test_final_encode.shape[0]," ns for ",X_test_final_encode.shape[0], "test data in average")
+
 
 layers=[1000,500,300,100,50,10]
-hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,100,layers)
-print('MAX Accuracy during training: ',max(hist.history['accuracy'])*100)
-print('MAX Accuracy during validation: ',max(hist.history['val_accuracy'])*100)
+hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,2,layers)
+
+#model=load_model('dnn.h5')
+
+#model.summary()
+# print('MAX Accuracy during training: ',max(hist.history['accuracy'])*100)
+# print('MAX Accuracy during validation: ',max(hist.history['val_accuracy'])*100)
 # plt.plot(range(10), hist.history['accuracy'], 'r', label='Train acc')
 # plt.plot(range(10), hist.history['val_accuracy'], 'b', label='Test acc')
 # plt.show()
