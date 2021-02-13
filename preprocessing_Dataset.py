@@ -304,10 +304,10 @@ def autoEncoder(X_train,X_test):
     history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
     #plot loss
 
-    pyplot.plot(history.history['loss'], label='train')
-    pyplot.plot(history.history['val_loss'], label='test')
-    pyplot.legend()
-    pyplot.show()
+    # pyplot.plot(history.history['loss'], label='train')
+    # pyplot.plot(history.history['val_loss'], label='test')
+    # pyplot.legend()
+    # pyplot.show()
 
     # define an encoder model (without the decoder)
     encoder = Model(inputs=visible, outputs=bottleneck)
@@ -402,11 +402,11 @@ X_train_final_encode = encoder.predict(X_train_final)
 X_test_final_encode = encoder.predict(X_test_final)
 
 layers=[1000,500,300,100,50,10]
-hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,10,layers)
+hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,100,layers)
 print('MAX Accuracy during training: ',max(hist.history['accuracy'])*100)
 print('MAX Accuracy during validation: ',max(hist.history['val_accuracy'])*100)
-plt.plot(range(10), hist.history['accuracy'], 'r', label='Train acc')
-plt.plot(range(10), hist.history['val_accuracy'], 'b', label='Test acc')
-plt.show()
+# plt.plot(range(10), hist.history['accuracy'], 'r', label='Train acc')
+# plt.plot(range(10), hist.history['val_accuracy'], 'b', label='Test acc')
+# plt.show()
 
 #Following code is for encoder
