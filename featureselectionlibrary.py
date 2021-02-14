@@ -188,6 +188,7 @@ def featureSelectionUsingExtraTreesClassifier(dataSetForFeatureSelection):
     trainedforest = ExtraTreesClassifier(n_estimators=700).fit(features,labelTransformed)
     importances = trainedforest.feature_importances_ #array with importances of each feature
     idx = np.arange(0, features.shape[1]) #create an index array, with the number of features
+
     features_to_keep = idx[importances > np.mean(importances)] #only keep features whose importance is greater than the mean importance
     featureImportances = pd.Series(importances, index= features.columns)
     selectedFeatures = featureImportances.nlargest(len(features_to_keep))

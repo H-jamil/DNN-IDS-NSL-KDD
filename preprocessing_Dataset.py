@@ -50,6 +50,7 @@ from classificationlibrary import classifyUsingRandomForestClassifier
 from classificationlibrary import classifyUsingExtraTreesClassifier
 from classificationlibrary import classifyUsingKNNClassifier
 from classificationlibrary import findingOptimumNumberOfNeighboursForKNN
+
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
@@ -298,8 +299,8 @@ def autoEncoder(X_train,X_test):
     # plot the autoencoder
     #plot_model(model, 'autoencoder_no_compress.png', show_shapes=True)
     # fit the autoencoder model to reconstruct input
-    # history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
-    history = model.fit(X_train, X_train, epochs=5, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+    history = model.fit(X_train, X_train, epochs=50, batch_size=16, verbose=2, validation_data=(X_test,X_test))
+    # history = model.fit(X_train, X_train, epochs=1, batch_size=16, verbose=2, validation_data=(X_test,X_test))
 
     #plot loss
 
@@ -331,7 +332,7 @@ def nn_model(trainx, trainy, valx,valy,bt_size,epochs, layers):
   loss, accuracy, f1_score, precision, recall = model.evaluate(valx, valy, verbose=0)
   start = time.process_time_ns()
   res = model.predict(valx)
-  print("model evaluation time in clock",(time.process_time_ns() - start)/valx.shape[0],"ns for ",valx.shape[0], "test data in average")
+  print("model evaluation time in clock",(time.process_time_ns() - start)/valx.shape[0],"ns for ",valx.shape[0],valx.shape[1], "test data in average")
   print("loss", loss,  "accuracy", accuracy*100, "f1_score", f1_score, "precision", precision, "recall", recall)
   return hist
 
@@ -405,11 +406,11 @@ X_train_final_encode = encoder.predict(X_train_final)
 
 start = time.process_time_ns()
 X_test_final_encode = encoder.predict(X_test_final)
-print("autoencoder evaluation time in clock",(time.process_time_ns() - start)/X_test_final_encode.shape[0]," ns for ",X_test_final_encode.shape[0], "test data in average")
+print("autoencoder evaluation time in clock",(time.process_time_ns() - start)/X_test_final_encode.shape[0]," ns for ",X_test_final_encode.shape[0],X_test_final_encode.shape[1], "test data in average")
 
 
 layers=[1000,500,300,100,50,10]
-hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,2,layers)
+hist = nn_model(X_train_final_encode, y_train_final, X_test_final_encode, y_test_final,16,100,layers)
 
 #model=load_model('dnn.h5')
 
